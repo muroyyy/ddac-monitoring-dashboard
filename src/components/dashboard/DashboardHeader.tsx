@@ -1,4 +1,5 @@
-import { RefreshCw, Clock, GitBranch, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { RefreshCw, Clock, GitBranch, CheckCircle2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DeploymentInfo } from '@/types/metrics';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -74,6 +75,14 @@ export const DashboardHeader = ({
               <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
               Refresh
             </Button>
+
+            {/* Settings Link */}
+            <Link to="/settings">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
