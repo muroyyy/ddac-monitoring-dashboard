@@ -178,14 +178,15 @@ public class CloudWatchService : ICloudWatchService
                 Namespace = nameSpace,
                 MetricName = metricName,
                 Dimensions = dimensions,
-                StartTime = DateTime.UtcNow.AddMinutes(-10),
-                EndTime = DateTime.UtcNow,
+                StartTimeUtc = DateTime.UtcNow.AddMinutes(-10),
+                EndTimeUtc = DateTime.UtcNow,
                 Period = 300, // 5 minutes
                 Statistics = new List<string> { "Average" }
             };
 
             var response = await _cloudWatch.GetMetricStatisticsAsync(request);
-            return response.Datapoints.LastOrDefault()?.Average ?? 0.0;
+            var lastDatapoint = response.Datapoints.LastOrDefault();
+            return lastDatapoint?.Average ?? 0.0;
         }
         catch (Exception ex)
         {
@@ -209,8 +210,8 @@ public class CloudWatchService : ICloudWatchService
                 Namespace = nameSpace,
                 MetricName = metricName,
                 Dimensions = dimensions,
-                StartTime = startTime,
-                EndTime = endTime,
+                StartTimeUtc = startTime,
+                EndTimeUtc = endTime,
                 Period = 300, // 5 minutes
                 Statistics = new List<string> { "Average" }
             };
@@ -222,7 +223,7 @@ public class CloudWatchService : ICloudWatchService
                 .Select(d => new MetricDataPoint
                 {
                     Timestamp = d.Timestamp.ToString("O"),
-                    Value = d.Average ?? 0.0
+                    Value = d.Average
                 })
                 .ToList();
         }

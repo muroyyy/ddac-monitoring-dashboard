@@ -98,7 +98,7 @@ public class HealthService : IHealthService
         }
     }
 
-    public async Task<DeploymentInfo> GetDeploymentInfoAsync()
+    public Task<DeploymentInfo> GetDeploymentInfoAsync()
     {
         try
         {
@@ -108,24 +108,24 @@ public class HealthService : IHealthService
             // - CodeDeploy API
             // - Environment variables set during deployment
             
-            return new DeploymentInfo
+            return Task.FromResult(new DeploymentInfo
             {
                 LastDeployment = DateTime.UtcNow.AddHours(-2).ToString("O"),
                 BuildId = $"build-{Environment.GetEnvironmentVariable("BUILD_ID") ?? "local"}",
                 Branch = Environment.GetEnvironmentVariable("GIT_BRANCH") ?? "main",
                 Status = "success"
-            };
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving deployment info");
-            return new DeploymentInfo
+            return Task.FromResult(new DeploymentInfo
             {
                 LastDeployment = DateTime.UtcNow.ToString("O"),
                 BuildId = "unknown",
                 Branch = "unknown",
                 Status = "unknown"
-            };
+            });
         }
     }
 
