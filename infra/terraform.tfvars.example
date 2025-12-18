@@ -9,7 +9,7 @@ availability_zones = ["ap-southeast-5a", "ap-southeast-5b"]
 
 # EC2 Configuration
 # key_pair_name = "your-key-pair-name"  # Optional - comment out to use SSM only
-instance_type = "t3.medium"
+instance_type = "t3.small"
 
 # RDS Configuration
 db_instance_class = "db.t3.micro"
