@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { RefreshCw, Clock, GitBranch, CheckCircle2, Settings } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { RefreshCw, Clock, GitBranch, CheckCircle2, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DeploymentInfo } from '@/types/metrics';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -18,6 +18,12 @@ export const DashboardHeader = ({
   deploymentInfo,
   onRefresh,
 }: DashboardHeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('sessionToken');
+    navigate('/login');
+  };
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4">
@@ -83,6 +89,17 @@ export const DashboardHeader = ({
                 Settings
               </Button>
             </Link>
+
+            {/* Logout Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </div>

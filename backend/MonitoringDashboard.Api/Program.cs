@@ -14,9 +14,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:5173", 
+                "http://localhost:3000",
+                "https://ddac-monitoring-dev-frontend.s3.ap-southeast-5.amazonaws.com",
+                "https://ddac-monitoring-dev-frontend.s3-website.ap-southeast-5.amazonaws.com"
+              )
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
