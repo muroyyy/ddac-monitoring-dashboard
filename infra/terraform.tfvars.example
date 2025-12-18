@@ -8,7 +8,7 @@ vpc_cidr = "192.168.0.0/24"
 availability_zones = ["ap-southeast-5a", "ap-southeast-5b"]
 
 # EC2 Configuration
-key_pair_name = "your-key-pair-name"  # Replace with your actual key pair
+# key_pair_name = "your-key-pair-name"  # Optional - comment out to use SSM only
 instance_type = "t3.medium"
 
 # RDS Configuration

@@ -19,8 +19,9 @@ variable "project_name" {
 }
 
 variable "key_pair_name" {
-  description = "EC2 Key Pair name"
+  description = "EC2 Key Pair name (optional - using SSM for access)"
   type        = string
+  default     = null
 }
 
 variable "instance_type" {

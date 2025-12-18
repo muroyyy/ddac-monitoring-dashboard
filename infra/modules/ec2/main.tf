@@ -4,14 +4,6 @@ resource "aws_security_group" "ec2" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "SSH"
-  }
-
-  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -146,7 +138,7 @@ locals {
 resource "aws_instance" "main" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = var.key_pair_name
+  key_name               = var.key_pair_name  # Optional - null if not provided
   vpc_security_group_ids = [aws_security_group.ec2.id]
   subnet_id              = var.public_subnet_ids[0]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
