@@ -60,7 +60,7 @@ jobs:
         ./deploy-backend.sh
         
         # Check if container is running
-        if docker ps | grep -q ddac-backend; then
+        if docker ps | grep -q ddac-monitoring-backend; then
           echo "Backend container is running successfully"
           exit 0
         else
@@ -85,7 +85,7 @@ jobs:
         COMMAND_ID=$(aws ssm send-command \
           --instance-ids ${{ env.EC2_INSTANCE_ID }} \
           --document-name "AWS-RunShellScript" \
-          --parameters 'commands=["docker ps | grep ddac-backend || echo \"Container not found\""]' \
+          --parameters 'commands=["docker ps | grep ddac-monitoring-backend || echo \"Container not found\""]' \
           --region ${{ env.AWS_REGION }} \
           --query 'Command.CommandId' \
           --output text)
