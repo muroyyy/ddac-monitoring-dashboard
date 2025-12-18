@@ -79,12 +79,25 @@ resource "aws_iam_policy" "backend_deployment_policy" {
           "ssm:SendCommand",
           "ssm:GetCommandInvocation",
           "ssm:DescribeInstanceInformation",
-          "ssm:ListCommandInvocations"
+          "ssm:ListCommandInvocations",
+          "ssm:ListCommands",
+          "ssm:DescribeInstanceAssociationsStatus",
+          "ssm:GetCommandInvocation"
         ]
         Resource = [
-          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:instance/${var.ec2_instance_id}",
+          "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:instance/${var.ec2_instance_id}",
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*",
           "arn:aws:ssm:${var.aws_region}::document/AWS-RunShellScript"
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:DescribeInstanceInformation",
+          "ssm:ListCommands",
+          "ssm:ListCommandInvocations"
+        ]
+        Resource = "*"
       }
     ]
   })
