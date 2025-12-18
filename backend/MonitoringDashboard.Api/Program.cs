@@ -29,11 +29,14 @@ builder.Services.AddCors(options =>
 // AWS Services - Uses IAM role attached to EC2 instance
 builder.Services.AddAWSService<IAmazonCloudWatch>();
 builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
+builder.Services.AddAWSService<Amazon.SecretsManager.IAmazonSecretsManager>();
 
 // Application Services
 builder.Services.AddSingleton<ICloudWatchService, CloudWatchService>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IHealthService, HealthService>();
+builder.Services.AddSingleton<SecretsManagerService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

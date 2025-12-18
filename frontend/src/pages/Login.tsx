@@ -29,15 +29,19 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Mock login API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (username === "amirul_admin" && password === "admin123") {
-        // Store session token
-        localStorage.setItem("sessionToken", "mock-session-token");
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("sessionToken", data.sessionToken);
         window.location.href = "/";
       } else {
-        setError("Invalid username or password");
+        const error = await response.json();
+        setError(error.message || "Invalid username or password");
       }
     } catch (err) {
       setError("Login failed. Please try again.");
@@ -52,12 +56,17 @@ const Login = () => {
     setForgotLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      if (email === "admin@ddac-monitoring.com") {
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (response.ok) {
         setForgotStep(2);
       } else {
-        setForgotError("Email does not match our records");
+        const error = await response.json();
+        setForgotError(error.message || "Email does not match our records");
       }
     } catch (err) {
       setForgotError("Verification failed. Please try again.");
@@ -83,8 +92,18 @@ const Login = () => {
     setForgotLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setForgotStep(3);
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword })
+      });
+
+      if (response.ok) {
+        setForgotStep(3);
+      } else {
+        const error = await response.json();
+        setForgotError(error.message || "Password reset failed. Please try again.");
+      }
     } catch (err) {
       setForgotError("Password reset failed. Please try again.");
     } finally {
