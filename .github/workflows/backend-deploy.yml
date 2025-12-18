@@ -9,7 +9,7 @@ on:
 env:
   AWS_REGION: ap-southeast-5
   ECR_REPOSITORY: ddac-monitoring-dev-backend
-  EC2_INSTANCE_ID: i-1234567890abcdef0  # Replace with actual instance ID
+  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
 
 jobs:
   build-and-deploy:
