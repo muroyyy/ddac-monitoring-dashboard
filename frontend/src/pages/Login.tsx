@@ -29,7 +29,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -56,7 +56,7 @@ const Login = () => {
     setForgotLoading(true);
 
     try {
-      const response = await fetch('/api/auth/verify-email', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -92,7 +92,7 @@ const Login = () => {
     setForgotLoading(true);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, newPassword })

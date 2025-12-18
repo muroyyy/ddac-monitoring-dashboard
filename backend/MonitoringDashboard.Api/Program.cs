@@ -17,8 +17,10 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:5173", 
                 "http://localhost:3000",
+                "http://localhost:8080",
                 "https://ddac-monitoring-dev-frontend.s3.ap-southeast-5.amazonaws.com",
-                "https://ddac-monitoring-dev-frontend.s3-website.ap-southeast-5.amazonaws.com"
+                "https://ddac-monitoring-dev-frontend.s3-website.ap-southeast-5.amazonaws.com",
+                "http://ddac-monitoring-dev-frontend.s3-website.ap-southeast-5.amazonaws.com"
               )
               .AllowAnyHeader()
               .AllowAnyMethod()
