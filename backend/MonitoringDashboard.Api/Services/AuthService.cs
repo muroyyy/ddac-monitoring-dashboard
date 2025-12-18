@@ -54,11 +54,11 @@ public class AuthService : IAuthService
 
             var user = new User
             {
-                Id = reader.GetInt32("id"),
-                Username = reader.GetString("username"),
-                Email = reader.GetString("email"),
-                PasswordHash = reader.GetString("password_hash"),
-                Role = reader.GetString("role")
+                Id = reader.GetInt32(0),
+                Username = reader.GetString(1),
+                Email = reader.GetString(2),
+                PasswordHash = reader.GetString(3),
+                Role = reader.GetString(4)
             };
 
             reader.Close();
