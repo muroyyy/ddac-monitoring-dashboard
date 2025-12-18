@@ -1,24 +1,20 @@
-# Welcome to your Lovable project
+# DDAC Monitoring Dashboard
 
-## Project info
+## Project Structure
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+This project is organized into separate directories:
 
-## How can I edit this code?
+- `frontend/` - React/TypeScript frontend application
+- `backend/` - Backend services and APIs
+- `infra/` - Infrastructure as Code (IaC) files
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+## Frontend Development
 
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The frontend is a React application built with Vite. To work on the frontend locally:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Requirement: Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
@@ -26,8 +22,8 @@ Follow these steps:
 # Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the frontend directory.
+cd <YOUR_PROJECT_NAME>/frontend
 
 # Step 3: Install the necessary dependencies.
 npm i
@@ -36,38 +32,31 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Technologies Used
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Frontend
+- **Vite** - Build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI framework
+- **shadcn-ui** - Component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Recharts** - Charts and data visualization
 
-**Use GitHub Codespaces**
+### Backend
+- AWS services integration
+- CloudWatch metrics collection
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Infrastructure
+- AWS CloudFormation/CDK
+- Infrastructure as Code
 
-## What technologies are used for this project?
+## Project Features
 
-This project is built with:
+This is an AWS CloudWatch monitoring dashboard that provides:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Real-time monitoring of EC2 instances
+- RDS database metrics
+- Lambda function performance
+- API Gateway statistics
+- Health status indicators
+- Automated data refresh every 30 seconds
