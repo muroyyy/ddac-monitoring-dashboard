@@ -110,20 +110,9 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_role.name
 }
 
-# Get latest Ubuntu AMI
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-22.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+# Ubuntu 24.04 LTS AMI for ap-southeast-5 (Malaysia)
+locals {
+  ubuntu_ami = "ami-001c7178515f44952"  # Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
 }
 
 # User Data Script
@@ -136,7 +125,7 @@ locals {
 
 # EC2 Instance
 resource "aws_instance" "main" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = local.ubuntu_ami
   instance_type          = var.instance_type
   key_name               = var.key_pair_name  # Optional - null if not provided
   vpc_security_group_ids = [aws_security_group.ec2.id]
