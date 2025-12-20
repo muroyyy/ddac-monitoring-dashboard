@@ -11,10 +11,12 @@ namespace MonitoringDashboard.Api.Controllers;
 public class MetricsController : ControllerBase
 {
     private readonly ILogger<MetricsController> _logger;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public MetricsController(ILogger<MetricsController> logger)
+    public MetricsController(ILogger<MetricsController> logger, ILoggerFactory loggerFactory)
     {
         _logger = logger;
+        _loggerFactory = loggerFactory;
     }
 
     [HttpPost]
@@ -26,7 +28,7 @@ public class MetricsController : ControllerBase
             var region = Amazon.RegionEndpoint.GetBySystemName(request.Region);
 
             // Create CloudWatch service with provided credentials
-            var cloudWatchService = new CloudWatchService(credentials, region, _logger);
+            var cloudWatchService = new CloudWatchService(credentials, region, _loggerFactory.CreateLogger<CloudWatchService>());
 
             // Fetch metrics from monitored resources
             var ec2Metrics = await cloudWatchService.GetEC2MetricsAsync(request.Ec2InstanceId ?? "");
