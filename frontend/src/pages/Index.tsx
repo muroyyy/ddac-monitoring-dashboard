@@ -87,13 +87,25 @@ const Index = () => {
       />
 
       <main className="container mx-auto space-y-8 px-6 py-8">
-        <HealthSection healthStatus={healthStatus} />
-        <EC2Section metrics={ec2Metrics} />
-        <RDSSection metrics={rdsMetrics} />
-        <LambdaSection
-          lambdaMetrics={lambdaMetrics}
-          apiGatewayMetrics={apiGatewayMetrics}
-        />
+        {!ec2Metrics && !rdsMetrics && !lambdaMetrics && !error && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading metrics...</p>
+          </div>
+        )}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600">Error: {error}</p>
+          </div>
+        )}
+        {healthStatus && <HealthSection healthStatus={healthStatus} />}
+        {ec2Metrics && <EC2Section metrics={ec2Metrics} />}
+        {rdsMetrics && <RDSSection metrics={rdsMetrics} />}
+        {lambdaMetrics && apiGatewayMetrics && (
+          <LambdaSection
+            lambdaMetrics={lambdaMetrics}
+            apiGatewayMetrics={apiGatewayMetrics}
+          />
+        )}
 
         <footer className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
           <p>
