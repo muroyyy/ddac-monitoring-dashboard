@@ -1,6 +1,8 @@
 export interface AWSEnvironmentSettings {
   region: string;
   environment: 'dev' | 'staging' | 'production';
+  accessKeyId?: string;
+  secretAccessKey?: string;
 }
 
 export interface EC2Settings {
