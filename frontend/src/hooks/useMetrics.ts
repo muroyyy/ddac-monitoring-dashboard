@@ -26,12 +26,17 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
     
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
+      const sessionToken = localStorage.getItem('sessionToken');
       
       // Fetch metrics from backend with account credentials
       const response = await fetch(`${apiUrl}/api/metrics`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
         body: JSON.stringify({
+          accountId: selectedAccount.id,
           accessKeyId: selectedAccount.accessKeyId,
           secretAccessKey: selectedAccount.secretAccessKey,
           region: selectedAccount.region

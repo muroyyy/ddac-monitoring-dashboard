@@ -4,6 +4,7 @@ export interface MetricDataPoint {
 }
 
 export interface EC2Metrics {
+  resourceName?: string;
   cpuUtilization: number;
   memoryUtilization: number;
   diskUsage: number;
@@ -14,6 +15,7 @@ export interface EC2Metrics {
 }
 
 export interface RDSMetrics {
+  resourceName?: string;
   cpuUtilization: number;
   freeableMemory: number;
   databaseConnections: number;
@@ -24,6 +26,7 @@ export interface RDSMetrics {
 }
 
 export interface LambdaMetrics {
+  resourceName?: string;
   invocations: number;
   errors: number;
   duration: number;
@@ -33,6 +36,7 @@ export interface LambdaMetrics {
 }
 
 export interface APIGatewayMetrics {
+  resourceName?: string;
   requestCount: number;
   latency: number;
   count4xx: number;

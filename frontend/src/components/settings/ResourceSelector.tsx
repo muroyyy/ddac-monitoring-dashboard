@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ interface ResourceSelectorProps {
 }
 
 export const ResourceSelector = ({ accountId, credentials }: ResourceSelectorProps) => {
+  const navigate = useNavigate();
   const [ec2Instances, setEc2Instances] = useState<any[]>([]);
   const [rdsInstances, setRdsInstances] = useState<any[]>([]);
   const [lambdaFunctions, setLambdaFunctions] = useState<any[]>([]);
@@ -95,7 +97,9 @@ export const ResourceSelector = ({ accountId, credentials }: ResourceSelectorPro
       });
 
       if (response.ok) {
-        alert('Resources saved successfully!');
+        navigate('/');
+      } else {
+        alert('Failed to save resources');
       }
     } catch (err) {
       console.error('Failed to save resources:', err);

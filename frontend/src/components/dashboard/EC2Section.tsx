@@ -12,7 +12,7 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
     <section className="space-y-4">
       <div className="section-header">
         <Server className="h-5 w-5 text-metric-ec2" />
-        <span>EC2 Application Server</span>
+        <span>EC2 Application Server{metrics.resourceName ? ` - ${metrics.resourceName}` : ''}</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">

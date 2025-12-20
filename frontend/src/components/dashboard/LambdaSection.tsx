@@ -9,11 +9,14 @@ interface LambdaSectionProps {
 }
 
 export const LambdaSection = ({ lambdaMetrics, apiGatewayMetrics }: LambdaSectionProps) => {
+  const lambdaName = lambdaMetrics.resourceName ? ` - ${lambdaMetrics.resourceName}` : '';
+  const apiName = apiGatewayMetrics.resourceName ? ` - ${apiGatewayMetrics.resourceName}` : '';
+  
   return (
     <section className="space-y-4">
       <div className="section-header">
         <Zap className="h-5 w-5 text-metric-lambda" />
-        <span>Serverless (Lambda & API Gateway)</span>
+        <span>Serverless{lambdaName || apiName ? ` (Lambda${lambdaName} & API Gateway${apiName})` : ' (Lambda & API Gateway)'}</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

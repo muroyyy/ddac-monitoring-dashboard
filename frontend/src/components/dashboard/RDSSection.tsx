@@ -12,7 +12,7 @@ export const RDSSection = ({ metrics }: RDSSectionProps) => {
     <section className="space-y-4">
       <div className="section-header">
         <Database className="h-5 w-5 text-metric-rds" />
-        <span>RDS Database (MySQL)</span>
+        <span>RDS Database{metrics.resourceName ? ` - ${metrics.resourceName}` : ' (MySQL)'}</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
