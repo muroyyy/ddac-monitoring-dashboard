@@ -30,10 +30,7 @@ public class SettingsController : ControllerBase
             using var client = new AmazonCloudWatchClient(credentials, config);
             
             // Test connection by listing metrics
-            var listRequest = new ListMetricsRequest
-            {
-                MaxRecords = 1
-            };
+            var listRequest = new ListMetricsRequest();
             
             await client.ListMetricsAsync(listRequest);
 
