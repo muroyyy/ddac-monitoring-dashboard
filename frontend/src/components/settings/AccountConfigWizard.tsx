@@ -49,7 +49,7 @@ export const AccountConfigWizard = ({ account, onSave, onCancel }: AccountConfig
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const generateId = () => {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
         return crypto.randomUUID();
@@ -68,17 +68,22 @@ export const AccountConfigWizard = ({ account, onSave, onCancel }: AccountConfig
       createdAt: account?.createdAt || new Date().toISOString()
     };
     
-    // Save to localStorage (temporary until backend is ready)
-    const stored = localStorage.getItem('aws_accounts');
-    const accounts = stored ? JSON.parse(stored) : [];
-    if (account) {
-      const updated = accounts.map((a: AWSAccountConfig) => a.id === newAccount.id ? newAccount : a);
-      localStorage.setItem('aws_accounts', JSON.stringify(updated));
-    } else {
-      localStorage.setItem('aws_accounts', JSON.stringify([...accounts, newAccount]));
+    try {
+      const sessionToken = localStorage.getItem('sessionToken');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings/accounts`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify(newAccount)
+      });
+
+      if (!response.ok) throw new Error('Failed to save account');
+      onSave(newAccount);
+    } catch (err) {
+      setValidationError('Failed to save account to database');
     }
-    
-    onSave(newAccount);
   };
 
   const steps = [

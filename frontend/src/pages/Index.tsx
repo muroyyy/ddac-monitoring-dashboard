@@ -15,15 +15,28 @@ const Index = () => {
   const [selectedAccount, setSelectedAccount] = useState<AWSAccountConfig | null>(null);
 
   useEffect(() => {
-    // Load accounts from localStorage (temporary until backend is ready)
-    const stored = localStorage.getItem('aws_accounts');
-    if (stored) {
-      const parsedAccounts = JSON.parse(stored);
-      setAccounts(parsedAccounts);
-      if (parsedAccounts.length > 0) {
-        setSelectedAccount(parsedAccounts[0]);
+    // Load accounts from backend
+    const loadAccounts = async () => {
+      try {
+        const sessionToken = localStorage.getItem('sessionToken');
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const response = await fetch(`${apiUrl}/api/settings/accounts`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
+          if (data.length > 0) {
+            setSelectedAccount(data[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load accounts:', err);
       }
-    }
+    };
+    
+    loadAccounts();
   }, []);
 
   const {

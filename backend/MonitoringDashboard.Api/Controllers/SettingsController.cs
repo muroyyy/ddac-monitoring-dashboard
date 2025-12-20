@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Amazon.CloudWatch;
 using Amazon.CloudWatch.Model;
 using Amazon.Runtime;
+using MySql.Data.MySqlClient;
+using MonitoringDashboard.Api.Services;
 
 namespace MonitoringDashboard.Api.Controllers;
 
@@ -10,10 +12,12 @@ namespace MonitoringDashboard.Api.Controllers;
 public class SettingsController : ControllerBase
 {
     private readonly ILogger<SettingsController> _logger;
+    private readonly SecretsManagerService _secretsManager;
 
-    public SettingsController(ILogger<SettingsController> logger)
+    public SettingsController(ILogger<SettingsController> logger, SecretsManagerService secretsManager)
     {
         _logger = logger;
+        _secretsManager = secretsManager;
     }
 
     [HttpPost("validate-credentials")]
@@ -70,6 +74,136 @@ public class SettingsController : ControllerBase
         {
             _logger.LogError(ex, "Error discovering resources");
             return BadRequest(new { message = "Failed to discover resources" });
+        }
+    }
+
+    [HttpPost("accounts")]
+    public async Task<IActionResult> SaveAccount([FromBody] SaveAccountRequest request)
+    {
+        try
+        {
+            var sessionToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await GetUserIdFromSession(sessionToken);
+            if (userId == null) return Unauthorized();
+
+            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var query = @"INSERT INTO aws_accounts (id, user_id, account_name, account_id, access_key_id, secret_access_key, region, is_validated) 
+                         VALUES (@id, @userId, @accountName, @accountId, @accessKeyId, @secretAccessKey, @region, @isValidated)
+                         ON DUPLICATE KEY UPDATE account_name=@accountName, account_id=@accountId, access_key_id=@accessKeyId, 
+                         secret_access_key=@secretAccessKey, region=@region, is_validated=@isValidated";
+
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@id", request.Id);
+            cmd.Parameters.AddWithValue("@userId", userId);
+            cmd.Parameters.AddWithValue("@accountName", request.AccountName);
+            cmd.Parameters.AddWithValue("@accountId", request.AccountId);
+            cmd.Parameters.AddWithValue("@accessKeyId", request.AccessKeyId);
+            cmd.Parameters.AddWithValue("@secretAccessKey", request.SecretAccessKey);
+            cmd.Parameters.AddWithValue("@region", request.Region);
+            cmd.Parameters.AddWithValue("@isValidated", request.IsValidated);
+
+            await cmd.ExecuteNonQueryAsync();
+            return Ok(new { message = "Account saved successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving account");
+            return BadRequest(new { message = "Failed to save account" });
+        }
+    }
+
+    [HttpGet("accounts")]
+    public async Task<IActionResult> GetAccounts()
+    {
+        try
+        {
+            var sessionToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await GetUserIdFromSession(sessionToken);
+            if (userId == null) return Unauthorized();
+
+            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT id, account_name, account_id, access_key_id, secret_access_key, region, is_validated, created_at FROM aws_accounts WHERE user_id = @userId";
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@userId", userId);
+
+            var accounts = new List<object>();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                accounts.Add(new
+                {
+                    id = reader.GetString(0),
+                    accountName = reader.GetString(1),
+                    accountId = reader.GetString(2),
+                    accessKeyId = reader.GetString(3),
+                    secretAccessKey = reader.GetString(4),
+                    region = reader.GetString(5),
+                    isValidated = reader.GetBoolean(6),
+                    createdAt = reader.GetDateTime(7).ToString("o")
+                });
+            }
+
+            return Ok(accounts);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching accounts");
+            return BadRequest(new { message = "Failed to fetch accounts" });
+        }
+    }
+
+    [HttpDelete("accounts/{id}")]
+    public async Task<IActionResult> DeleteAccount(string id)
+    {
+        try
+        {
+            var sessionToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await GetUserIdFromSession(sessionToken);
+            if (userId == null) return Unauthorized();
+
+            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var query = "DELETE FROM aws_accounts WHERE id = @id AND user_id = @userId";
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@userId", userId);
+
+            await cmd.ExecuteNonQueryAsync();
+            return Ok(new { message = "Account deleted successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting account");
+            return BadRequest(new { message = "Failed to delete account" });
+        }
+    }
+
+    private async Task<int?> GetUserIdFromSession(string sessionToken)
+    {
+        try
+        {
+            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT user_id FROM user_sessions WHERE session_token = @token AND expires_at > NOW()";
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@token", sessionToken);
+
+            var result = await cmd.ExecuteScalarAsync();
+            return result != null ? Convert.ToInt32(result) : null;
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -180,4 +314,15 @@ public class DiscoverResourcesRequest
     public string AccessKeyId { get; set; } = string.Empty;
     public string SecretAccessKey { get; set; } = string.Empty;
     public string Region { get; set; } = string.Empty;
+}
+
+public class SaveAccountRequest
+{
+    public string Id { get; set; } = string.Empty;
+    public string AccountName { get; set; } = string.Empty;
+    public string AccountId { get; set; } = string.Empty;
+    public string AccessKeyId { get; set; } = string.Empty;
+    public string SecretAccessKey { get; set; } = string.Empty;
+    public string Region { get; set; } = string.Empty;
+    public bool IsValidated { get; set; }
 }

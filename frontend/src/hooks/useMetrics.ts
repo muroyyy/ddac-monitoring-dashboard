@@ -11,7 +11,8 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
   const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo>({
     branch: 'main',
     buildId: 'N/A',
-    deployedAt: new Date().toISOString(),
+    lastDeployment: new Date().toISOString(),
+    status: 'success',
   });
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);

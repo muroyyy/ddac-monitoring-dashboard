@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,29 @@ const Settings = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AWSAccountConfig | null>(null);
 
-  const handleSaveAccount = (account: AWSAccountConfig) => {
-    if (editingAccount) {
-      setAccounts(accounts.map(a => a.id === account.id ? account : a));
-    } else {
-      setAccounts([...accounts, account]);
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    try {
+      const sessionToken = localStorage.getItem('sessionToken');
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/settings/accounts`, {
+        headers: { 'Authorization': `Bearer ${sessionToken}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAccounts(data);
+      }
+    } catch (err) {
+      console.error('Failed to load accounts:', err);
     }
+  };
+
+  const handleSaveAccount = (account: AWSAccountConfig) => {
+    loadAccounts();
     setShowWizard(false);
     setEditingAccount(null);
   };
@@ -26,8 +43,21 @@ const Settings = () => {
     setShowWizard(true);
   };
 
-  const handleDeleteAccount = (accountId: string) => {
-    setAccounts(accounts.filter(a => a.id !== accountId));
+  const handleDeleteAccount = async (accountId: string) => {
+    try {
+      const sessionToken = localStorage.getItem('sessionToken');
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/settings/accounts/${accountId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${sessionToken}` }
+      });
+      
+      if (response.ok) {
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+    }
   };
 
   return (
