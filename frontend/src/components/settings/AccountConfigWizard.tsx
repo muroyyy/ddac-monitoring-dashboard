@@ -50,8 +50,15 @@ export const AccountConfigWizard = ({ account, onSave, onCancel }: AccountConfig
   };
 
   const handleSave = () => {
+    const generateId = () => {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    };
+
     const newAccount: AWSAccountConfig = {
-      id: account?.id || crypto.randomUUID(),
+      id: account?.id || generateId(),
       accountName,
       accountId,
       accessKeyId,
