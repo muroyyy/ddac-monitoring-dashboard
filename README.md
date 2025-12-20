@@ -1,35 +1,75 @@
 # DDAC Monitoring Dashboard
 
+> A comprehensive AWS CloudWatch monitoring dashboard for real-time infrastructure monitoring and metrics visualization.
+
+## Overview
+
+DDAC Monitoring Dashboard is a full-stack cloud monitoring solution that provides real-time insights into AWS infrastructure. Built as part of a cloud computing project, it demonstrates modern DevOps practices including Infrastructure as Code, CI/CD pipelines, and secure authentication.
+
+## Features
+
+### Monitoring Capabilities
+- **EC2 Metrics**: CPU utilization, memory usage, disk usage, network I/O
+- **RDS Database**: CPU, memory, connections, IOPS monitoring
+- **Lambda Functions**: Invocations, errors, duration, throttles
+- **API Gateway**: Request counts, latency, 4xx/5xx errors
+- **Health Dashboard**: Real-time status indicators for all services
+- **Auto-refresh**: Metrics update every 30 seconds
+
+### Security & Authentication
+- Secure login system with session management
+- Password reset functionality with email verification
+- MySQL database for user management
+- AWS Secrets Manager integration for credentials
+- Protected routes and session validation
+
+### Infrastructure
+- **Automated Deployment**: CI/CD pipelines with GitHub Actions
+- **Infrastructure as Code**: Terraform for AWS resource provisioning
+- **Containerized Backend**: Docker + ECR + EC2 deployment
+- **Static Frontend**: S3 bucket hosting with CloudFront-ready setup
+- **Database**: RDS MySQL with automated backups
+
+## Architecture
+
+```
+┌─────────────┐      ┌──────────────┐      ┌─────────────┐
+│   S3 + CF   │─────▶│  EC2 + API   │─────▶│ RDS MySQL   │
+│  (Frontend) │      │  (Backend)   │      │ (Database)  │
+└─────────────┘      └──────────────┘      └─────────────┘
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │  CloudWatch  │
+                     │   Metrics    │
+                     └──────────────┘
+```
+
 ## Project Structure
 
-This project is organized into separate directories:
-
-- `frontend/` - React/TypeScript frontend application
-- `backend/` - Backend services and APIs
-- `infra/` - Infrastructure as Code (IaC) files
-
-## Frontend Development
-
-**Use your preferred IDE**
-
-The frontend is a React application built with Vite. To work on the frontend locally:
-
-Requirement: Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the frontend directory.
-cd <YOUR_PROJECT_NAME>/frontend
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+ddac-monitoring-dashboard/
+├── frontend/          # React + TypeScript + Vite
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── services/
+│   └── .env          # API configuration
+├── backend/          # .NET 8 Web API
+│   ├── Controllers/
+│   ├── Services/
+│   ├── Models/
+│   └── database/     # SQL setup scripts
+├── infra/            # Terraform IaC
+│   ├── modules/
+│   │   ├── vpc/
+│   │   ├── ec2/
+│   │   ├── rds/
+│   │   ├── s3/
+│   │   ├── ecr/
+│   │   └── iam/
+│   └── main.tf
+└── .github/workflows/ # CI/CD pipelines
 ```
 
 ## Technologies Used
