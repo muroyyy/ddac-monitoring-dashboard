@@ -13,11 +13,13 @@ public class SettingsController : ControllerBase
 {
     private readonly ILogger<SettingsController> _logger;
     private readonly SecretsManagerService _secretsManager;
+    private readonly IConfiguration _configuration;
 
-    public SettingsController(ILogger<SettingsController> logger, SecretsManagerService secretsManager)
+    public SettingsController(ILogger<SettingsController> logger, SecretsManagerService secretsManager, IConfiguration configuration)
     {
         _logger = logger;
         _secretsManager = secretsManager;
+        _configuration = configuration;
     }
 
     [HttpPost("validate-credentials")]
@@ -188,7 +190,7 @@ public class SettingsController : ControllerBase
 
     private async Task<string> GetConnectionStringAsync()
     {
-        var secretName = "ddac-monitoring-rds-secret";
+        var secretName = _configuration["AWS:RdsSecretName"] ?? "ddac-monitoring-dev-rds-credentials";
         var credentials = await _secretsManager.GetRdsCredentialsAsync(secretName);
         if (credentials == null) throw new Exception("Failed to retrieve database credentials");
         
