@@ -337,3 +337,99 @@ public class SaveAccountRequest
     public string Region { get; set; } = string.Empty;
     public bool IsValidated { get; set; }
 }
+
+
+    [HttpPost("accounts/{accountId}/resources")]
+    public async Task<IActionResult> SaveMonitoredResources(string accountId, [FromBody] SaveResourcesRequest request)
+    {
+        try
+        {
+            var sessionToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await GetUserIdFromSession(sessionToken);
+            if (userId == null) return Unauthorized();
+
+            var connectionString = await GetConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // Delete existing resources for this account
+            var deleteQuery = "DELETE FROM monitored_resources WHERE aws_account_id = @accountId";
+            using var deleteCmd = new MySqlCommand(deleteQuery, connection);
+            deleteCmd.Parameters.AddWithValue("@accountId", accountId);
+            await deleteCmd.ExecuteNonQueryAsync();
+
+            // Insert new resources
+            foreach (var resource in request.Resources)
+            {
+                var insertQuery = @"INSERT INTO monitored_resources (aws_account_id, resource_type, resource_id, resource_name, is_enabled) 
+                                   VALUES (@accountId, @type, @resourceId, @name, @enabled)";
+                using var insertCmd = new MySqlCommand(insertQuery, connection);
+                insertCmd.Parameters.AddWithValue("@accountId", accountId);
+                insertCmd.Parameters.AddWithValue("@type", resource.Type);
+                insertCmd.Parameters.AddWithValue("@resourceId", resource.ResourceId);
+                insertCmd.Parameters.AddWithValue("@name", resource.Name);
+                insertCmd.Parameters.AddWithValue("@enabled", resource.IsEnabled);
+                await insertCmd.ExecuteNonQueryAsync();
+            }
+
+            return Ok(new { message = "Resources saved successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving monitored resources");
+            return BadRequest(new { message = "Failed to save resources" });
+        }
+    }
+
+    [HttpGet("accounts/{accountId}/resources")]
+    public async Task<IActionResult> GetMonitoredResources(string accountId)
+    {
+        try
+        {
+            var sessionToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await GetUserIdFromSession(sessionToken);
+            if (userId == null) return Unauthorized();
+
+            var connectionString = await GetConnectionStringAsync();
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT resource_type, resource_id, resource_name, is_enabled FROM monitored_resources WHERE aws_account_id = @accountId";
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@accountId", accountId);
+
+            var resources = new List<object>();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                resources.Add(new
+                {
+                    type = reader.GetString(0),
+                    resourceId = reader.GetString(1),
+                    name = reader.GetString(2),
+                    isEnabled = reader.GetBoolean(3)
+                });
+            }
+
+            return Ok(resources);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching monitored resources");
+            return BadRequest(new { message = "Failed to fetch resources" });
+        }
+    }
+
+
+public class SaveResourcesRequest
+{
+    public List<MonitoredResource> Resources { get; set; } = new();
+}
+
+public class MonitoredResource
+{
+    public string Type { get; set; } = string.Empty;
+    public string ResourceId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public bool IsEnabled { get; set; } = true;
+}

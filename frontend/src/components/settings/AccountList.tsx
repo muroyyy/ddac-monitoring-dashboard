@@ -1,4 +1,4 @@
-import { Cloud, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Cloud, Edit, Trash2, CheckCircle, XCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AWSAccountConfig } from '@/types/settings';
@@ -7,9 +7,10 @@ interface AccountListProps {
   accounts: AWSAccountConfig[];
   onEdit: (account: AWSAccountConfig) => void;
   onDelete: (accountId: string) => void;
+  onConfigureResources?: (account: AWSAccountConfig) => void;
 }
 
-export const AccountList = ({ accounts, onEdit, onDelete }: AccountListProps) => {
+export const AccountList = ({ accounts, onEdit, onDelete, onConfigureResources }: AccountListProps) => {
   if (accounts.length === 0) {
     return (
       <div className="text-center py-12">
@@ -53,6 +54,16 @@ export const AccountList = ({ accounts, onEdit, onDelete }: AccountListProps) =>
                 </div>
               </div>
               <div className="flex gap-2">
+                {onConfigureResources && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => onConfigureResources(account)}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configure Resources
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"

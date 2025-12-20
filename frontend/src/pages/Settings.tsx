@@ -4,12 +4,14 @@ import { ArrowLeft, Plus, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AccountConfigWizard } from '@/components/settings/AccountConfigWizard';
 import { AccountList } from '@/components/settings/AccountList';
+import { ResourceSelector } from '@/components/settings/ResourceSelector';
 import { AWSAccountConfig } from '@/types/settings';
 
 const Settings = () => {
   const [accounts, setAccounts] = useState<AWSAccountConfig[]>([]);
   const [showWizard, setShowWizard] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AWSAccountConfig | null>(null);
+  const [selectedAccountForResources, setSelectedAccountForResources] = useState<AWSAccountConfig | null>(null);
 
   useEffect(() => {
     loadAccounts();
@@ -101,11 +103,33 @@ const Settings = () => {
               setEditingAccount(null);
             }}
           />
+        ) : selectedAccountForResources ? (
+          <div>
+            <Button 
+              variant="ghost" 
+              onClick={() => setSelectedAccountForResources(null)}
+              className="mb-4"
+            >
+              ← Back to Accounts
+            </Button>
+            <h2 className="text-xl font-semibold mb-4">
+              Configure Resources for {selectedAccountForResources.accountName}
+            </h2>
+            <ResourceSelector 
+              accountId={selectedAccountForResources.id}
+              credentials={{
+                accessKeyId: selectedAccountForResources.accessKeyId,
+                secretAccessKey: selectedAccountForResources.secretAccessKey,
+                region: selectedAccountForResources.region
+              }}
+            />
+          </div>
         ) : (
           <AccountList
             accounts={accounts}
             onEdit={handleEditAccount}
             onDelete={handleDeleteAccount}
+            onConfigureResources={setSelectedAccountForResources}
           />
         )}
       </main>
