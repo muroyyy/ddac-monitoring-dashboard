@@ -86,7 +86,7 @@ public class SettingsController : ControllerBase
             var userId = await GetUserIdFromSession(sessionToken);
             if (userId == null) return Unauthorized();
 
-            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            var connectionString = await GetConnectionStringAsync();
             using var connection = new MySqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -124,7 +124,7 @@ public class SettingsController : ControllerBase
             var userId = await GetUserIdFromSession(sessionToken);
             if (userId == null) return Unauthorized();
 
-            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            var connectionString = await GetConnectionStringAsync();
             using var connection = new MySqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -167,7 +167,7 @@ public class SettingsController : ControllerBase
             var userId = await GetUserIdFromSession(sessionToken);
             if (userId == null) return Unauthorized();
 
-            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            var connectionString = await GetConnectionStringAsync();
             using var connection = new MySqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -186,11 +186,20 @@ public class SettingsController : ControllerBase
         }
     }
 
+    private async Task<string> GetConnectionStringAsync()
+    {
+        var secretName = "ddac-monitoring-rds-secret";
+        var credentials = await _secretsManager.GetRdsCredentialsAsync(secretName);
+        if (credentials == null) throw new Exception("Failed to retrieve database credentials");
+        
+        return $"Server={credentials.host};Port={credentials.port};Database={credentials.dbname};User={credentials.username};Password={credentials.password};";
+    }
+
     private async Task<int?> GetUserIdFromSession(string sessionToken)
     {
         try
         {
-            var connectionString = await _secretsManager.GetRdsConnectionStringAsync();
+            var connectionString = await GetConnectionStringAsync();
             using var connection = new MySqlConnection(connectionString);
             await connection.OpenAsync();
 
