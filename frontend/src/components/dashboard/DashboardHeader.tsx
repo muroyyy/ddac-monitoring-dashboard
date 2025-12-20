@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { RefreshCw, Clock, GitBranch, CheckCircle2, Settings, LogOut } from 'lucide-react';
+import { RefreshCw, Clock, GitBranch, CheckCircle2, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DeploymentInfo } from '@/types/metrics';
+import { AWSAccountConfig } from '@/types/settings';
 import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +12,9 @@ interface DashboardHeaderProps {
   isRefreshing: boolean;
   deploymentInfo: DeploymentInfo;
   onRefresh: () => void;
+  selectedAccount: AWSAccountConfig | null;
+  accounts: AWSAccountConfig[];
+  onAccountChange: (account: AWSAccountConfig) => void;
 }
 
 export const DashboardHeader = ({
@@ -17,6 +22,9 @@ export const DashboardHeader = ({
   isRefreshing,
   deploymentInfo,
   onRefresh,
+  selectedAccount,
+  accounts,
+  onAccountChange,
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
 
@@ -32,16 +40,38 @@ export const DashboardHeader = ({
             <div className="flex items-center gap-3">
               <div>
                 <h1 className="text-xl font-semibold text-foreground">
-                  CloudWatch Dashboard
+                  AWS Monitoring Dashboard
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  bloodline.dev — Real-time AWS Metrics
+                  {selectedAccount ? selectedAccount.accountName : 'Multi-Account Cloud Monitoring'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
+            {/* Account Selector */}
+            {accounts.length > 0 && selectedAccount && (
+              <Select
+                value={selectedAccount.id}
+                onValueChange={(id) => {
+                  const account = accounts.find(a => a.id === id);
+                  if (account) onAccountChange(account);
+                }}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.accountName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             {/* Deployment Info */}
             <div className="flex items-center gap-3 rounded-lg bg-secondary px-4 py-2">
               <CheckCircle2 className="h-4 w-4 text-metric-success" />

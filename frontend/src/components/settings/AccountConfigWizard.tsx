@@ -60,6 +60,17 @@ export const AccountConfigWizard = ({ account, onSave, onCancel }: AccountConfig
       isValidated,
       createdAt: account?.createdAt || new Date().toISOString()
     };
+    
+    // Save to localStorage (temporary until backend is ready)
+    const stored = localStorage.getItem('aws_accounts');
+    const accounts = stored ? JSON.parse(stored) : [];
+    if (account) {
+      const updated = accounts.map((a: AWSAccountConfig) => a.id === newAccount.id ? newAccount : a);
+      localStorage.setItem('aws_accounts', JSON.stringify(updated));
+    } else {
+      localStorage.setItem('aws_accounts', JSON.stringify([...accounts, newAccount]));
+    }
+    
     onSave(newAccount);
   };
 

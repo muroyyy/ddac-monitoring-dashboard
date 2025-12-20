@@ -1,5 +1,6 @@
 using Amazon.CloudWatch;
 using Amazon.CloudWatch.Model;
+using Amazon.Runtime;
 using MonitoringDashboard.Api.Models;
 
 namespace MonitoringDashboard.Api.Services;
@@ -9,9 +10,17 @@ public class CloudWatchService : ICloudWatchService
     private readonly IAmazonCloudWatch _cloudWatch;
     private readonly ILogger<CloudWatchService> _logger;
 
+    // Constructor for DI with IAM role
     public CloudWatchService(IAmazonCloudWatch cloudWatch, ILogger<CloudWatchService> logger)
     {
         _cloudWatch = cloudWatch;
+        _logger = logger;
+    }
+
+    // Constructor for dynamic credentials
+    public CloudWatchService(BasicAWSCredentials credentials, Amazon.RegionEndpoint region, ILogger<CloudWatchService> logger)
+    {
+        _cloudWatch = new AmazonCloudWatchClient(credentials, region);
         _logger = logger;
     }
 
