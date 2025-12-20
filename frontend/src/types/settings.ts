@@ -1,8 +1,17 @@
 export interface AWSEnvironmentSettings {
   region: string;
   environment: 'dev' | 'staging' | 'production';
-  accessKeyId?: string;
-  secretAccessKey?: string;
+}
+
+export interface AWSAccountConfig {
+  id: string;
+  accountName: string;
+  accountId: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  region: string;
+  isValidated: boolean;
+  createdAt: string;
 }
 
 export interface EC2Settings {
