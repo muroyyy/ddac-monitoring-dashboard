@@ -8,7 +8,11 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
   const [lambdaMetrics, setLambdaMetrics] = useState<LambdaMetrics | null>(null);
   const [apiGatewayMetrics, setAPIGatewayMetrics] = useState<APIGatewayMetrics | null>(null);
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
-  const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo | null>(null);
+  const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo>({
+    branch: 'main',
+    buildId: 'N/A',
+    deployedAt: new Date().toISOString(),
+  });
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
