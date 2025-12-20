@@ -39,6 +39,9 @@ builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IHealthService, HealthService>();
 builder.Services.AddSingleton<SecretsManagerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AWSAccountService>();
+builder.Services.AddScoped<AWSResourceDiscoveryService>();
+builder.Services.AddScoped<MonitoredResourceService>();
 
 var app = builder.Build();
 
