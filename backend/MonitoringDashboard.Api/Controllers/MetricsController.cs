@@ -65,9 +65,9 @@ public class MetricsController : ControllerBase
 
             var response = new
             {
-                ec2Metrics = ec2Metrics != null ? new { resourceName = ec2Name, ec2Metrics.cpuUtilization, ec2Metrics.memoryUtilization, ec2Metrics.diskUsage, ec2Metrics.networkIn, ec2Metrics.networkOut, ec2Metrics.cpuHistory, ec2Metrics.memoryHistory } : null,
-                rdsMetrics = rdsMetrics != null ? new { resourceName = rdsName, rdsMetrics.cpuUtilization, rdsMetrics.freeableMemory, rdsMetrics.databaseConnections, rdsMetrics.readIOPS, rdsMetrics.writeIOPS, rdsMetrics.cpuHistory, rdsMetrics.connectionsHistory } : null,
-                lambdaMetrics = lambdaMetrics != null ? new { resourceName = lambdaName, lambdaMetrics.invocations, lambdaMetrics.errors, lambdaMetrics.duration, lambdaMetrics.throttles, lambdaMetrics.invocationsHistory, lambdaMetrics.errorsHistory } : null,
+                ec2Metrics = ec2Metrics != null ? new { resourceName = ec2Name, ec2Metrics.CpuUtilization, ec2Metrics.MemoryUtilization, ec2Metrics.DiskUsage, ec2Metrics.NetworkIn, ec2Metrics.NetworkOut, ec2Metrics.CpuHistory, ec2Metrics.MemoryHistory } : null,
+                rdsMetrics = rdsMetrics != null ? new { resourceName = rdsName, rdsMetrics.CpuUtilization, rdsMetrics.FreeableMemory, rdsMetrics.DatabaseConnections, rdsMetrics.ReadIOPS, rdsMetrics.WriteIOPS, rdsMetrics.CpuHistory, rdsMetrics.ConnectionsHistory } : null,
+                lambdaMetrics = lambdaMetrics != null ? new { resourceName = lambdaName, lambdaMetrics.Invocations, lambdaMetrics.Errors, lambdaMetrics.Duration, lambdaMetrics.Throttles, lambdaMetrics.InvocationsHistory, lambdaMetrics.ErrorsHistory } : null,
                 apiGatewayMetrics,
                 healthStatus = new
                 {
