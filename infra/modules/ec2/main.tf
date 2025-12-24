@@ -140,6 +140,7 @@ resource "aws_instance" "main" {
   subnet_id              = var.public_subnet_ids[0]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   user_data              = local.user_data
+  monitoring             = true  # Enable detailed monitoring (1-min intervals)
 
   root_block_device {
     volume_type = "gp3"
