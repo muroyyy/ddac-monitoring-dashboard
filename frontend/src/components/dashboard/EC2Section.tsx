@@ -45,7 +45,7 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
         />
         <MetricCard
           title="Disk Size"
-          value={metrics.diskSize}
+          value={metrics.diskSize || 0}
           unit="GB"
           trend="stable"
           trendValue="Used"
@@ -65,19 +65,19 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <MetricChart
-          data={metrics.cpuHistory}
+          data={metrics.cpuHistory || []}
           title="CPU Utilization Over Time"
           color="hsl(210 100% 60%)"
           unit="%"
         />
         <MetricChart
-          data={metrics.memoryHistory}
+          data={metrics.memoryHistory || []}
           title="Memory Utilization Over Time"
           color="hsl(210 100% 60%)"
           unit="%"
         />
         <MetricChart
-          data={metrics.diskHistory}
+          data={metrics.diskHistory || []}
           title="Disk Usage Over Time"
           color="hsl(210 100% 60%)"
           unit="%"
