@@ -8,10 +8,12 @@ export interface EC2Metrics {
   cpuUtilization: number;
   memoryUtilization: number;
   diskUsage: number;
+  diskSize: number;
   networkIn: number;
   networkOut: number;
   cpuHistory: MetricDataPoint[];
   memoryHistory: MetricDataPoint[];
+  diskHistory: MetricDataPoint[];
 }
 
 export interface RDSMetrics {

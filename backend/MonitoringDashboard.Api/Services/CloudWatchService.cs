@@ -39,22 +39,26 @@ public class CloudWatchService : ICloudWatchService
             // CloudWatch Agent metrics (requires CWAgent namespace)
             var memoryTask = GetLatestMetricValueAsync("CWAgent", "mem_used_percent", "InstanceId", instanceId);
             var diskTask = GetLatestMetricValueAsync("CWAgent", "disk_used_percent", "InstanceId", instanceId);
+            var diskSizeTask = GetLatestMetricValueAsync("CWAgent", "disk_used", "InstanceId", instanceId);
 
             // Get historical data
             var cpuHistoryTask = GetMetricHistoryAsync("AWS/EC2", "CPUUtilization", "InstanceId", instanceId, startTime, endTime);
             var memoryHistoryTask = GetMetricHistoryAsync("CWAgent", "mem_used_percent", "InstanceId", instanceId, startTime, endTime);
+            var diskHistoryTask = GetMetricHistoryAsync("CWAgent", "disk_used_percent", "InstanceId", instanceId, startTime, endTime);
 
-            await Task.WhenAll(cpuTask, networkInTask, networkOutTask, memoryTask, diskTask, cpuHistoryTask, memoryHistoryTask);
+            await Task.WhenAll(cpuTask, networkInTask, networkOutTask, memoryTask, diskTask, diskSizeTask, cpuHistoryTask, memoryHistoryTask, diskHistoryTask);
 
             return new EC2Metrics
             {
                 CpuUtilization = await cpuTask,
                 MemoryUtilization = await memoryTask,
                 DiskUsage = await diskTask,
+                DiskSize = (await diskSizeTask) / 1024 / 1024 / 1024, // Convert to GB
                 NetworkIn = await networkInTask / 1024 / 1024, // Convert to MB
                 NetworkOut = await networkOutTask / 1024 / 1024, // Convert to MB
                 CpuHistory = await cpuHistoryTask,
-                MemoryHistory = await memoryHistoryTask
+                MemoryHistory = await memoryHistoryTask,
+                DiskHistory = await diskHistoryTask
             };
         }
         catch (Exception ex)
