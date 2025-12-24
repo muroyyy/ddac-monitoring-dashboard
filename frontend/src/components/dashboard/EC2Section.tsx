@@ -44,15 +44,6 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
           variant="ec2"
         />
         <MetricCard
-          title="Disk Size"
-          value={metrics.diskSize || 0}
-          unit="GB"
-          trend="stable"
-          trendValue="Used"
-          icon={<HardDrive className="h-4 w-4" />}
-          variant="ec2"
-        />
-        <MetricCard
           title="Network In"
           value={metrics.networkIn}
           unit="MB/s"
@@ -61,9 +52,18 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
           icon={<Network className="h-4 w-4" />}
           variant="ec2"
         />
+        <MetricCard
+          title="Network Out"
+          value={metrics.networkOut}
+          unit="MB/s"
+          trend="stable"
+          trendValue="Normal"
+          icon={<Network className="h-4 w-4" />}
+          variant="ec2"
+        />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2">
         <MetricChart
           data={metrics.cpuHistory || []}
           title="CPU Utilization Over Time"
@@ -76,6 +76,9 @@ export const EC2Section = ({ metrics }: EC2SectionProps) => {
           color="hsl(210 100% 60%)"
           unit="%"
         />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-1">
         <MetricChart
           data={metrics.diskHistory || []}
           title="Disk Usage Over Time"

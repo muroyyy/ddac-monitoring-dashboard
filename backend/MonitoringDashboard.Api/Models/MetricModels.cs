@@ -11,7 +11,6 @@ public class EC2Metrics
     public double CpuUtilization { get; set; }
     public double MemoryUtilization { get; set; }
     public double DiskUsage { get; set; }
-    public double DiskSize { get; set; }
     public double NetworkIn { get; set; }
     public double NetworkOut { get; set; }
     public List<MetricDataPoint> CpuHistory { get; set; } = new();
