@@ -32,3 +32,6 @@ dist-ssr
 .terraform.lock.hcl
 crash.log
 crash.*.log
+
+# Documentation
+docs/
