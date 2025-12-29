@@ -1,19 +1,24 @@
 using Amazon.CloudWatch;
 using Amazon.CloudWatch.Model;
+using Amazon.CloudWatchLogs;
+using Amazon.CloudWatchLogs.Model;
 using Amazon.Runtime;
 using MonitoringDashboard.Api.Models;
+using System.Text.Json;
 
 namespace MonitoringDashboard.Api.Services;
 
 public class CloudWatchService : ICloudWatchService
 {
     private readonly IAmazonCloudWatch _cloudWatch;
+    private readonly IAmazonCloudWatchLogs _cloudWatchLogs;
     private readonly ILogger<CloudWatchService> _logger;
 
     // Constructor for DI with IAM role
     public CloudWatchService(IAmazonCloudWatch cloudWatch, ILogger<CloudWatchService> logger)
     {
         _cloudWatch = cloudWatch;
+        _cloudWatchLogs = new AmazonCloudWatchLogsClient();
         _logger = logger;
     }
 
@@ -21,6 +26,7 @@ public class CloudWatchService : ICloudWatchService
     public CloudWatchService(BasicAWSCredentials credentials, Amazon.RegionEndpoint region, ILogger<CloudWatchService> logger)
     {
         _cloudWatch = new AmazonCloudWatchClient(credentials, region);
+        _cloudWatchLogs = new AmazonCloudWatchLogsClient(credentials, region);
         _logger = logger;
     }
 
@@ -286,6 +292,7 @@ public class CloudWatchService : ICloudWatchService
 
             // CRITICAL: Route53 metrics are ONLY available in us-east-1
             using var usEast1Client = new AmazonCloudWatchClient(credentials, Amazon.RegionEndpoint.USEast1);
+            using var usEast1LogsClient = new AmazonCloudWatchLogsClient(credentials, Amazon.RegionEndpoint.USEast1);
 
             var dimensions = new List<Dimension>
             {
@@ -294,15 +301,17 @@ public class CloudWatchService : ICloudWatchService
 
             var dnsQueriesTask = GetMetricFromClientAsync(usEast1Client, "AWS/Route53", "DNSQueries", dimensions, "Sum");
             var dnsQueriesHistoryTask = GetMetricHistoryFromClientAsync(usEast1Client, "AWS/Route53", "DNSQueries", dimensions, startTime, endTime, "Sum");
+            var queryLogsTask = GetRoute53QueryLogsAsync(usEast1LogsClient, hostedZoneId, startTime, endTime);
 
-            await Task.WhenAll(dnsQueriesTask, dnsQueriesHistoryTask);
+            await Task.WhenAll(dnsQueriesTask, dnsQueriesHistoryTask, queryLogsTask);
 
             return new Route53Metrics
             {
                 HostedZoneId = hostedZoneId,
                 HostedZoneName = hostedZoneName,
                 DNSQueries = (long)await dnsQueriesTask,
-                DNSQueriesHistory = await dnsQueriesHistoryTask
+                DNSQueriesHistory = await dnsQueriesHistoryTask,
+                RecentQueries = await queryLogsTask
             };
         }
         catch (Exception ex)
@@ -489,3 +498,103 @@ public class CloudWatchService : ICloudWatchService
         }
     }
 }
+    private async Task<List<DnsQueryLog>> GetRoute53QueryLogsAsync(IAmazonCloudWatchLogs logsClient, string hostedZoneId, DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            // Route53 query logs are typically in log groups named /aws/route53/{hosted-zone-id}
+            var logGroupName = $"/aws/route53/{hostedZoneId}";
+            
+            var request = new FilterLogEventsRequest
+            {
+                LogGroupName = logGroupName,
+                StartTime = ((DateTimeOffset)startTime).ToUnixTimeMilliseconds(),
+                EndTime = ((DateTimeOffset)endTime).ToUnixTimeMilliseconds(),
+                Limit = 50 // Get recent 50 queries
+            };
+
+            var response = await logsClient.FilterLogEventsAsync(request);
+            var queryLogs = new List<DnsQueryLog>();
+
+            foreach (var logEvent in response.Events.OrderByDescending(e => e.Timestamp))
+            {
+                try
+                {
+                    var logData = ParseRoute53LogEntry(logEvent.Message);
+                    if (logData != null)
+                    {
+                        queryLogs.Add(logData);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse Route53 log entry: {Message}", logEvent.Message);
+                }
+            }
+
+            return queryLogs;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to retrieve Route53 query logs for hosted zone {HostedZoneId}", hostedZoneId);
+            return new List<DnsQueryLog>();
+        }
+    }
+
+    private DnsQueryLog? ParseRoute53LogEntry(string logMessage)
+    {
+        try
+        {
+            // Route53 query logs are in JSON format
+            using var document = JsonDocument.Parse(logMessage);
+            var root = document.RootElement;
+
+            return new DnsQueryLog
+            {
+                Timestamp = root.TryGetProperty("timestamp", out var timestamp) ? timestamp.GetString() ?? "" : "",
+                SourceIp = root.TryGetProperty("srcaddr", out var srcAddr) ? srcAddr.GetString() ?? "" : "",
+                QueryName = root.TryGetProperty("query_name", out var queryName) ? queryName.GetString() ?? "" : "",
+                QueryType = root.TryGetProperty("query_type", out var queryType) ? queryType.GetString() ?? "" : "",
+                ResponseCode = root.TryGetProperty("responseCode", out var responseCode) ? responseCode.GetString() ?? "" : "",
+                EdgeLocation = root.TryGetProperty("srcport", out var srcPort) ? ExtractEdgeLocation(srcPort.GetString() ?? "") : ""
+            };
+        }
+        catch (JsonException)
+        {
+            // If JSON parsing fails, try to parse as space-separated format
+            return ParseRoute53LogEntryLegacy(logMessage);
+        }
+    }
+
+    private DnsQueryLog? ParseRoute53LogEntryLegacy(string logMessage)
+    {
+        try
+        {
+            // Legacy format: timestamp srcaddr query_name query_type responseCode edge_location
+            var parts = logMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 5)
+            {
+                return new DnsQueryLog
+                {
+                    Timestamp = parts[0],
+                    SourceIp = parts[1],
+                    QueryName = parts[2],
+                    QueryType = parts[3],
+                    ResponseCode = parts[4],
+                    EdgeLocation = parts.Length > 5 ? parts[5] : ""
+                };
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string ExtractEdgeLocation(string srcPort)
+    {
+        // Edge location extraction logic - this is a simplified approach
+        // In reality, you might need to map source ports or other identifiers to edge locations
+        return !string.IsNullOrEmpty(srcPort) ? $"Edge-{srcPort.Substring(0, Math.Min(3, srcPort.Length))}" : "Unknown";
+    }

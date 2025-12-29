@@ -85,9 +85,19 @@ export interface S3Metrics {
   bucketSizeHistory: MetricDataPoint[];
 }
 
+export interface DnsQueryLog {
+  timestamp: string;
+  sourceIp: string;
+  queryName: string;
+  queryType: string;
+  responseCode: string;
+  edgeLocation: string;
+}
+
 export interface Route53Metrics {
   hostedZoneId: string;
   hostedZoneName: string;
   dnsQueries: number;
   dnsQueriesHistory: MetricDataPoint[];
+  recentQueries: DnsQueryLog[];
 }

@@ -98,4 +98,15 @@ public class Route53Metrics
     public string HostedZoneName { get; set; } = string.Empty;
     public long DNSQueries { get; set; }
     public List<MetricDataPoint> DNSQueriesHistory { get; set; } = new();
+    public List<DnsQueryLog> RecentQueries { get; set; } = new();
+}
+
+public class DnsQueryLog
+{
+    public string Timestamp { get; set; } = string.Empty;
+    public string SourceIp { get; set; } = string.Empty;
+    public string QueryName { get; set; } = string.Empty;
+    public string QueryType { get; set; } = string.Empty;
+    public string ResponseCode { get; set; } = string.Empty;
+    public string EdgeLocation { get; set; } = string.Empty;
 }

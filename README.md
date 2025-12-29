@@ -13,6 +13,7 @@ DDAC Monitoring Dashboard is a full-stack cloud monitoring solution that provide
 - **RDS Database**: CPU, memory, connections, IOPS monitoring
 - **Lambda Functions**: Invocations, errors, duration, throttles
 - **API Gateway**: Request counts, latency, 4xx/5xx errors
+- **Route53 DNS**: Query logs with source IP, query name/type, response codes, edge locations
 - **Health Dashboard**: Real-time status indicators for all services
 - **Auto-refresh**: Metrics update every 30 seconds
 
