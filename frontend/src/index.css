@@ -41,6 +41,9 @@
     --metric-rds: 168 84% 45%;
     --metric-lambda: 270 70% 60%;
     --metric-health: 38 92% 55%;
+    --metric-cloudfront: 200 85% 55%;
+    --metric-s3: 35 95% 55%;
+    --metric-route53: 280 70% 55%;
     --metric-success: 142 76% 45%;
     --metric-warning: 38 92% 55%;
     --metric-error: 0 72% 51%;
@@ -108,6 +111,21 @@
   .metric-card-health {
     @apply border-l-4;
     border-left-color: hsl(var(--metric-health));
+  }
+
+  .metric-card-cloudfront {
+    @apply border-l-4;
+    border-left-color: hsl(var(--metric-cloudfront));
+  }
+
+  .metric-card-s3 {
+    @apply border-l-4;
+    border-left-color: hsl(var(--metric-s3));
+  }
+
+  .metric-card-route53 {
+    @apply border-l-4;
+    border-left-color: hsl(var(--metric-route53));
   }
 
   .status-dot {

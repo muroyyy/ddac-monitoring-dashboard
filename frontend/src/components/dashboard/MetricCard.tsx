@@ -9,7 +9,7 @@ interface MetricCardProps {
   trend?: 'up' | 'down' | 'stable';
   trendValue?: string;
   icon?: ReactNode;
-  variant?: 'ec2' | 'rds' | 'lambda' | 'health';
+  variant?: 'ec2' | 'rds' | 'lambda' | 'health' | 'cloudfront' | 's3' | 'route53';
   className?: string;
 }
 

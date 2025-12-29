@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { EC2Metrics, RDSMetrics, LambdaMetrics, APIGatewayMetrics, HealthStatus, DeploymentInfo } from '@/types/metrics';
+import { EC2Metrics, RDSMetrics, LambdaMetrics, APIGatewayMetrics, HealthStatus, DeploymentInfo, CloudFrontMetrics, S3Metrics, Route53Metrics } from '@/types/metrics';
 import { AWSAccountConfig } from '@/types/settings';
 
 export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInterval: number = 30000) => {
@@ -7,6 +7,9 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
   const [rdsMetrics, setRDSMetrics] = useState<RDSMetrics | null>(null);
   const [lambdaMetrics, setLambdaMetrics] = useState<LambdaMetrics | null>(null);
   const [apiGatewayMetrics, setAPIGatewayMetrics] = useState<APIGatewayMetrics | null>(null);
+  const [cloudFrontMetrics, setCloudFrontMetrics] = useState<CloudFrontMetrics | null>(null);
+  const [s3Metrics, setS3Metrics] = useState<S3Metrics | null>(null);
+  const [route53Metrics, setRoute53Metrics] = useState<Route53Metrics | null>(null);
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo>({
     branch: 'main',
@@ -39,7 +42,10 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
           accountId: selectedAccount.id,
           accessKeyId: selectedAccount.accessKeyId,
           secretAccessKey: selectedAccount.secretAccessKey,
-          region: selectedAccount.region
+          region: selectedAccount.region,
+          cloudFrontDistributionId: selectedAccount.cloudFrontDistributionId,
+          s3BucketName: selectedAccount.s3BucketName,
+          route53HealthCheckId: selectedAccount.route53HealthCheckId
         })
       });
 
@@ -48,11 +54,14 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
       }
 
       const data = await response.json();
-      
+
       setEC2Metrics(data.ec2Metrics);
       setRDSMetrics(data.rdsMetrics);
       setLambdaMetrics(data.lambdaMetrics);
       setAPIGatewayMetrics(data.apiGatewayMetrics);
+      setCloudFrontMetrics(data.cloudFrontMetrics);
+      setS3Metrics(data.s3Metrics);
+      setRoute53Metrics(data.route53Metrics);
       setHealthStatus(data.healthStatus);
       setDeploymentInfo(data.deploymentInfo);
       setLastUpdated(new Date());
@@ -77,6 +86,9 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
     rdsMetrics,
     lambdaMetrics,
     apiGatewayMetrics,
+    cloudFrontMetrics,
+    s3Metrics,
+    route53Metrics,
     healthStatus,
     deploymentInfo,
     lastUpdated,

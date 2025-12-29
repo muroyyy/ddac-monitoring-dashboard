@@ -5,6 +5,9 @@ import { EC2Section } from '@/components/dashboard/EC2Section';
 import { RDSSection } from '@/components/dashboard/RDSSection';
 import { LambdaSection } from '@/components/dashboard/LambdaSection';
 import { HealthSection } from '@/components/dashboard/HealthSection';
+import { CloudFrontSection } from '@/components/dashboard/CloudFrontSection';
+import { S3Section } from '@/components/dashboard/S3Section';
+import { Route53Section } from '@/components/dashboard/Route53Section';
 import { useMetrics } from '@/hooks/useMetrics';
 import { Button } from '@/components/ui/button';
 import { Cloud, Settings } from 'lucide-react';
@@ -44,6 +47,9 @@ const Index = () => {
     rdsMetrics,
     lambdaMetrics,
     apiGatewayMetrics,
+    cloudFrontMetrics,
+    s3Metrics,
+    route53Metrics,
     healthStatus,
     deploymentInfo,
     lastUpdated,
@@ -111,6 +117,9 @@ const Index = () => {
           </div>
         )}
         {healthStatus && <HealthSection healthStatus={healthStatus} />}
+        {cloudFrontMetrics && <CloudFrontSection metrics={cloudFrontMetrics} />}
+        {s3Metrics && <S3Section metrics={s3Metrics} />}
+        {route53Metrics && <Route53Section metrics={route53Metrics} />}
         {ec2Metrics && <EC2Section metrics={ec2Metrics} />}
         {rdsMetrics && <RDSSection metrics={rdsMetrics} />}
         {lambdaMetrics && apiGatewayMetrics && (

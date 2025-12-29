@@ -80,20 +80,79 @@ public class AWSAccountService
         cmd.Parameters.AddWithValue("@userId", userId);
 
         var accounts = new List<object>();
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        var accountIds = new List<string>();
+
+        using (var reader = await cmd.ExecuteReaderAsync())
         {
-            accounts.Add(new
+            while (await reader.ReadAsync())
             {
-                id = reader.GetString(0),
-                accountName = reader.GetString(1),
-                accountId = reader.GetString(2),
-                accessKeyId = reader.GetString(3),
-                secretAccessKey = reader.GetString(4),
-                region = reader.GetString(5),
-                isValidated = reader.GetBoolean(6),
-                createdAt = reader.GetDateTime(7).ToString("o")
-            });
+                var accId = reader.GetString(0);
+                accountIds.Add(accId);
+                accounts.Add(new
+                {
+                    id = accId,
+                    accountName = reader.GetString(1),
+                    accountId = reader.GetString(2),
+                    accessKeyId = reader.GetString(3),
+                    secretAccessKey = reader.GetString(4),
+                    region = reader.GetString(5),
+                    isValidated = reader.GetBoolean(6),
+                    createdAt = reader.GetDateTime(7).ToString("o"),
+                    cloudFrontDistributionId = (string?)null,
+                    s3BucketName = (string?)null,
+                    route53HealthCheckId = (string?)null
+                });
+            }
+        }
+
+        // Fetch monitored resources for each account and update the accounts list
+        for (int i = 0; i < accounts.Count; i++)
+        {
+            var account = accounts[i];
+            var accId = accountIds[i];
+
+            var resourceQuery = "SELECT resource_type, resource_id FROM monitored_resources WHERE aws_account_id = @accountId AND is_enabled = 1";
+            using var resourceCmd = new MySqlCommand(resourceQuery, connection);
+            resourceCmd.Parameters.AddWithValue("@accountId", accId);
+
+            string? cloudFrontId = null, s3Bucket = null, route53Id = null;
+
+            using var resourceReader = await resourceCmd.ExecuteReaderAsync();
+            while (await resourceReader.ReadAsync())
+            {
+                var resourceType = resourceReader.GetString(0);
+                var resourceId = resourceReader.GetString(1);
+
+                switch (resourceType)
+                {
+                    case "cloudfront":
+                        cloudFrontId = resourceId;
+                        break;
+                    case "s3":
+                        s3Bucket = resourceId;
+                        break;
+                    case "route53":
+                        route53Id = resourceId;
+                        break;
+                }
+            }
+
+            // Rebuild the account object with resource IDs
+            var originalAccount = (dynamic)account;
+            accounts[i] = new
+            {
+                id = (string)originalAccount.id,
+                accountName = (string)originalAccount.accountName,
+                accountId = (string)originalAccount.accountId,
+                accessKeyId = (string)originalAccount.accessKeyId,
+                secretAccessKey = (string)originalAccount.secretAccessKey,
+                region = (string)originalAccount.region,
+                isValidated = (bool)originalAccount.isValidated,
+                createdAt = (string)originalAccount.createdAt,
+                cloudFrontDistributionId = cloudFrontId,
+                s3BucketName = s3Bucket,
+                route53HealthCheckId = route53Id
+            };
         }
 
         return accounts;

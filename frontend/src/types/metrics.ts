@@ -61,3 +61,33 @@ export interface DeploymentInfo {
   branch: string;
   status: 'success' | 'failed' | 'running';
 }
+
+export interface CloudFrontMetrics {
+  distributionId: string;
+  domainName: string;
+  requests: number;
+  cacheHitRate: number;
+  error4xxRate: number;
+  error5xxRate: number;
+  originLatency: number;
+  requestsHistory: MetricDataPoint[];
+  cacheHitRateHistory: MetricDataPoint[];
+}
+
+export interface S3Metrics {
+  bucketName: string;
+  numberOfObjects: number;
+  bucketSizeBytes: number;
+  allRequests: number;
+  error4xxCount: number;
+  error5xxCount: number;
+  requestsHistory: MetricDataPoint[];
+  bucketSizeHistory: MetricDataPoint[];
+}
+
+export interface Route53Metrics {
+  healthCheckId: string;
+  healthCheckStatus: number;
+  healthCheckPercentageHealthy: number;
+  healthStatusHistory: MetricDataPoint[];
+}

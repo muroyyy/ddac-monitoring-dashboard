@@ -68,7 +68,9 @@ public class SettingsController : ControllerBase
                 ec2Instances = await _discoveryService.DiscoverEC2InstancesAsync(credentials, region),
                 rdsInstances = await _discoveryService.DiscoverRDSInstancesAsync(credentials, region),
                 lambdaFunctions = await _discoveryService.DiscoverLambdaFunctionsAsync(credentials, region),
-                s3Buckets = await _discoveryService.DiscoverS3BucketsAsync(credentials, region)
+                s3Buckets = await _discoveryService.DiscoverS3BucketsAsync(credentials, region),
+                cloudFrontDistributions = await _discoveryService.DiscoverCloudFrontDistributionsAsync(credentials),
+                route53HealthChecks = await _discoveryService.DiscoverRoute53HealthChecksAsync(credentials)
             };
 
             return Ok(resources);

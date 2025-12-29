@@ -66,3 +66,36 @@ public class DeploymentInfo
     public string Branch { get; set; } = string.Empty;
     public string Status { get; set; } = "success";
 }
+
+public class CloudFrontMetrics
+{
+    public string DistributionId { get; set; } = string.Empty;
+    public string DomainName { get; set; } = string.Empty;
+    public long Requests { get; set; }
+    public double CacheHitRate { get; set; }
+    public double Error4xxRate { get; set; }
+    public double Error5xxRate { get; set; }
+    public double OriginLatency { get; set; }
+    public List<MetricDataPoint> RequestsHistory { get; set; } = new();
+    public List<MetricDataPoint> CacheHitRateHistory { get; set; } = new();
+}
+
+public class S3Metrics
+{
+    public string BucketName { get; set; } = string.Empty;
+    public long NumberOfObjects { get; set; }
+    public double BucketSizeBytes { get; set; }
+    public long AllRequests { get; set; }
+    public int Error4xxCount { get; set; }
+    public int Error5xxCount { get; set; }
+    public List<MetricDataPoint> RequestsHistory { get; set; } = new();
+    public List<MetricDataPoint> BucketSizeHistory { get; set; } = new();
+}
+
+public class Route53Metrics
+{
+    public string HealthCheckId { get; set; } = string.Empty;
+    public double HealthCheckStatus { get; set; }
+    public double HealthCheckPercentageHealthy { get; set; }
+    public List<MetricDataPoint> HealthStatusHistory { get; set; } = new();
+}

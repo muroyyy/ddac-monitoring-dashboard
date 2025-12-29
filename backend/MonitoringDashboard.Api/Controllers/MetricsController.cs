@@ -59,9 +59,22 @@ public class MetricsController : ControllerBase
             var rdsMetrics = await cloudWatchService.GetRDSMetricsAsync(request.RdsInstanceId ?? "");
             var lambdaMetrics = await cloudWatchService.GetLambdaMetricsAsync(request.LambdaFunctionName ?? "");
             var apiGatewayMetrics = await cloudWatchService.GetAPIGatewayMetricsAsync(
-                request.ApiGatewayId ?? "", 
+                request.ApiGatewayId ?? "",
                 request.ApiGatewayStage ?? "prod"
             );
+
+            // Fetch CloudFront, S3, and Route53 metrics
+            var cloudFrontMetrics = !string.IsNullOrEmpty(request.CloudFrontDistributionId)
+                ? await cloudWatchService.GetCloudFrontMetricsAsync(request.CloudFrontDistributionId, credentials)
+                : null;
+
+            var s3Metrics = !string.IsNullOrEmpty(request.S3BucketName)
+                ? await cloudWatchService.GetS3MetricsAsync(request.S3BucketName)
+                : null;
+
+            var route53Metrics = !string.IsNullOrEmpty(request.Route53HealthCheckId)
+                ? await cloudWatchService.GetRoute53MetricsAsync(request.Route53HealthCheckId, credentials)
+                : null;
 
             var response = new
             {
@@ -69,6 +82,9 @@ public class MetricsController : ControllerBase
                 rdsMetrics = rdsMetrics != null ? new { resourceName = rdsName, rdsMetrics.CpuUtilization, rdsMetrics.FreeableMemory, rdsMetrics.DatabaseConnections, rdsMetrics.ReadIOPS, rdsMetrics.WriteIOPS, rdsMetrics.CpuHistory, rdsMetrics.ConnectionsHistory } : null,
                 lambdaMetrics = lambdaMetrics != null ? new { resourceName = lambdaName, lambdaMetrics.Invocations, lambdaMetrics.Errors, lambdaMetrics.Duration, lambdaMetrics.Throttles, lambdaMetrics.InvocationsHistory, lambdaMetrics.ErrorsHistory } : null,
                 apiGatewayMetrics,
+                cloudFrontMetrics,
+                s3Metrics,
+                route53Metrics,
                 healthStatus = new
                 {
                     backend = "healthy",
@@ -117,4 +133,7 @@ public class MetricsRequest
     public string? LambdaFunctionName { get; set; }
     public string? ApiGatewayId { get; set; }
     public string? ApiGatewayStage { get; set; }
+    public string? CloudFrontDistributionId { get; set; }
+    public string? S3BucketName { get; set; }
+    public string? Route53HealthCheckId { get; set; }
 }

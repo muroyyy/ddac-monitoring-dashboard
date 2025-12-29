@@ -12,6 +12,9 @@ export interface AWSAccountConfig {
   region: string;
   isValidated: boolean;
   createdAt: string;
+  cloudFrontDistributionId?: string;
+  s3BucketName?: string;
+  route53HealthCheckId?: string;
 }
 
 export interface EC2Settings {
