@@ -497,7 +497,7 @@ public class CloudWatchService : ICloudWatchService
             return new List<MetricDataPoint>();
         }
     }
-}
+
     private async Task<List<DnsQueryLog>> GetRoute53QueryLogsAsync(IAmazonCloudWatchLogs logsClient, string hostedZoneId, DateTime startTime, DateTime endTime)
     {
         try
@@ -598,3 +598,4 @@ public class CloudWatchService : ICloudWatchService
         // In reality, you might need to map source ports or other identifiers to edge locations
         return !string.IsNullOrEmpty(srcPort) ? $"Edge-{srcPort.Substring(0, Math.Min(3, srcPort.Length))}" : "Unknown";
     }
+}
