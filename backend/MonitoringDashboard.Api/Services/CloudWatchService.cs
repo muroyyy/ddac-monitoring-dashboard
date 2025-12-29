@@ -277,7 +277,7 @@ public class CloudWatchService : ICloudWatchService
         }
     }
 
-    public async Task<Route53Metrics> GetRoute53MetricsAsync(string healthCheckId, BasicAWSCredentials credentials)
+    public async Task<Route53Metrics> GetRoute53MetricsAsync(string hostedZoneId, string hostedZoneName, BasicAWSCredentials credentials)
     {
         try
         {
@@ -289,27 +289,26 @@ public class CloudWatchService : ICloudWatchService
 
             var dimensions = new List<Dimension>
             {
-                new() { Name = "HealthCheckId", Value = healthCheckId }
+                new() { Name = "HostedZoneId", Value = hostedZoneId }
             };
 
-            var statusTask = GetMetricFromClientAsync(usEast1Client, "AWS/Route53", "HealthCheckStatus", dimensions, "Minimum");
-            var percentHealthyTask = GetMetricFromClientAsync(usEast1Client, "AWS/Route53", "HealthCheckPercentageHealthy", dimensions, "Average");
-            var statusHistoryTask = GetMetricHistoryFromClientAsync(usEast1Client, "AWS/Route53", "HealthCheckStatus", dimensions, startTime, endTime, "Minimum");
+            var dnsQueriesTask = GetMetricFromClientAsync(usEast1Client, "AWS/Route53", "DNSQueries", dimensions, "Sum");
+            var dnsQueriesHistoryTask = GetMetricHistoryFromClientAsync(usEast1Client, "AWS/Route53", "DNSQueries", dimensions, startTime, endTime, "Sum");
 
-            await Task.WhenAll(statusTask, percentHealthyTask, statusHistoryTask);
+            await Task.WhenAll(dnsQueriesTask, dnsQueriesHistoryTask);
 
             return new Route53Metrics
             {
-                HealthCheckId = healthCheckId,
-                HealthCheckStatus = await statusTask,
-                HealthCheckPercentageHealthy = await percentHealthyTask,
-                HealthStatusHistory = await statusHistoryTask
+                HostedZoneId = hostedZoneId,
+                HostedZoneName = hostedZoneName,
+                DNSQueries = (long)await dnsQueriesTask,
+                DNSQueriesHistory = await dnsQueriesHistoryTask
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving Route53 metrics for health check {HealthCheckId}", healthCheckId);
-            return new Route53Metrics { HealthCheckId = healthCheckId };
+            _logger.LogError(ex, "Error retrieving Route53 metrics for hosted zone {HostedZoneId}", hostedZoneId);
+            return new Route53Metrics { HostedZoneId = hostedZoneId, HostedZoneName = hostedZoneName };
         }
     }
 

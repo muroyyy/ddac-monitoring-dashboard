@@ -14,7 +14,8 @@ export interface AWSAccountConfig {
   createdAt: string;
   cloudFrontDistributionId?: string;
   s3BucketName?: string;
-  route53HealthCheckId?: string;
+  route53HostedZoneId?: string;
+  route53HostedZoneName?: string;
 }
 
 export interface EC2Settings {

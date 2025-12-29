@@ -29,6 +29,7 @@ export const ResourceSelector = ({ accountId, credentials }: ResourceSelectorPro
   const [cloudFrontDistributions, setCloudFrontDistributions] = useState<any[]>([]);
   const [s3Buckets, setS3Buckets] = useState<any[]>([]);
   const [route53HealthChecks, setRoute53HealthChecks] = useState<any[]>([]);
+  const [route53HostedZones, setRoute53HostedZones] = useState<any[]>([]);
   const [selectedResources, setSelectedResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,6 +58,7 @@ export const ResourceSelector = ({ accountId, credentials }: ResourceSelectorPro
         setCloudFrontDistributions(discovered.cloudFrontDistributions || []);
         setS3Buckets(discovered.s3Buckets || []);
         setRoute53HealthChecks(discovered.route53HealthChecks || []);
+        setRoute53HostedZones(discovered.route53HostedZones || []);
       }
 
       // Load saved selections
@@ -245,21 +247,21 @@ export const ResourceSelector = ({ accountId, credentials }: ResourceSelectorPro
       <div>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Globe className="h-5 w-5 text-[hsl(280,70%,55%)]" />
-          Route53 Health Checks
+          Route53 Hosted Zones
         </h3>
         <div className="space-y-2">
-          {route53HealthChecks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No Route53 health checks found</p>
+          {route53HostedZones.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No Route53 hosted zones found</p>
           ) : (
-            route53HealthChecks.map((hc) => (
-              <div key={hc.healthCheckId} className="flex items-center space-x-2">
+            route53HostedZones.map((hz) => (
+              <div key={hz.hostedZoneId} className="flex items-center space-x-2">
                 <Checkbox
-                  id={`route53-${hc.healthCheckId}`}
-                  checked={isSelected('route53', hc.healthCheckId)}
-                  onCheckedChange={() => toggleResource('route53', hc.healthCheckId, hc.fqdn || hc.healthCheckId)}
+                  id={`route53-${hz.hostedZoneId}`}
+                  checked={isSelected('route53', hz.hostedZoneId)}
+                  onCheckedChange={() => toggleResource('route53', hz.hostedZoneId, hz.name)}
                 />
-                <Label htmlFor={`route53-${hc.healthCheckId}`} className="cursor-pointer">
-                  {hc.fqdn || hc.healthCheckId} ({hc.type}) - Port {hc.port}
+                <Label htmlFor={`route53-${hz.hostedZoneId}`} className="cursor-pointer">
+                  {hz.name} ({hz.recordCount} records){hz.isPrivate ? ' - Private' : ''}
                 </Label>
               </div>
             ))

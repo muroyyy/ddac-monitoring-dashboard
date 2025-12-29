@@ -70,7 +70,8 @@ public class SettingsController : ControllerBase
                 lambdaFunctions = await _discoveryService.DiscoverLambdaFunctionsAsync(credentials, region),
                 s3Buckets = await _discoveryService.DiscoverS3BucketsAsync(credentials, region),
                 cloudFrontDistributions = await _discoveryService.DiscoverCloudFrontDistributionsAsync(credentials),
-                route53HealthChecks = await _discoveryService.DiscoverRoute53HealthChecksAsync(credentials)
+                route53HealthChecks = await _discoveryService.DiscoverRoute53HealthChecksAsync(credentials),
+                route53HostedZones = await _discoveryService.DiscoverRoute53HostedZonesAsync(credentials)
             };
 
             return Ok(resources);

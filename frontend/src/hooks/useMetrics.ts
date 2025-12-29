@@ -45,7 +45,8 @@ export const useMetrics = (selectedAccount: AWSAccountConfig | null, refreshInte
           region: selectedAccount.region,
           cloudFrontDistributionId: selectedAccount.cloudFrontDistributionId,
           s3BucketName: selectedAccount.s3BucketName,
-          route53HealthCheckId: selectedAccount.route53HealthCheckId
+          route53HostedZoneId: selectedAccount.route53HostedZoneId,
+          route53HostedZoneName: selectedAccount.route53HostedZoneName
         })
       });
 

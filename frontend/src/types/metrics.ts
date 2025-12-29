@@ -86,8 +86,8 @@ export interface S3Metrics {
 }
 
 export interface Route53Metrics {
-  healthCheckId: string;
-  healthCheckStatus: number;
-  healthCheckPercentageHealthy: number;
-  healthStatusHistory: MetricDataPoint[];
+  hostedZoneId: string;
+  hostedZoneName: string;
+  dnsQueries: number;
+  dnsQueriesHistory: MetricDataPoint[];
 }

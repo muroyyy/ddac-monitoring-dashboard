@@ -155,4 +155,28 @@ public class AWSResourceDiscoveryService
             return new List<object>();
         }
     }
+
+    public async Task<List<object>> DiscoverRoute53HostedZonesAsync(BasicAWSCredentials credentials)
+    {
+        try
+        {
+            // Route53 is a global service - use us-east-1
+            using var route53Client = new Amazon.Route53.AmazonRoute53Client(credentials, Amazon.RegionEndpoint.USEast1);
+            var response = await route53Client.ListHostedZonesAsync(new Amazon.Route53.Model.ListHostedZonesRequest());
+
+            return response.HostedZones.Select(hz => new
+            {
+                hostedZoneId = hz.Id.Replace("/hostedzone/", ""),
+                name = hz.Name.TrimEnd('.'),
+                recordCount = hz.ResourceRecordSetCount,
+                isPrivate = hz.Config?.PrivateZone ?? false,
+                comment = hz.Config?.Comment ?? ""
+            }).Cast<object>().ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to discover Route53 hosted zones");
+            return new List<object>();
+        }
+    }
 }

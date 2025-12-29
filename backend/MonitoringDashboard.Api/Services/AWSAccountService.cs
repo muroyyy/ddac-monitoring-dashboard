@@ -100,7 +100,8 @@ public class AWSAccountService
                     createdAt = reader.GetDateTime(7).ToString("o"),
                     cloudFrontDistributionId = (string?)null,
                     s3BucketName = (string?)null,
-                    route53HealthCheckId = (string?)null
+                    route53HostedZoneId = (string?)null,
+                    route53HostedZoneName = (string?)null
                 });
             }
         }
@@ -111,17 +112,18 @@ public class AWSAccountService
             var account = accounts[i];
             var accId = accountIds[i];
 
-            var resourceQuery = "SELECT resource_type, resource_id FROM monitored_resources WHERE aws_account_id = @accountId AND is_enabled = 1";
+            var resourceQuery = "SELECT resource_type, resource_id, resource_name FROM monitored_resources WHERE aws_account_id = @accountId AND is_enabled = 1";
             using var resourceCmd = new MySqlCommand(resourceQuery, connection);
             resourceCmd.Parameters.AddWithValue("@accountId", accId);
 
-            string? cloudFrontId = null, s3Bucket = null, route53Id = null;
+            string? cloudFrontId = null, s3Bucket = null, route53ZoneId = null, route53ZoneName = null;
 
             using var resourceReader = await resourceCmd.ExecuteReaderAsync();
             while (await resourceReader.ReadAsync())
             {
                 var resourceType = resourceReader.GetString(0);
                 var resourceId = resourceReader.GetString(1);
+                var resourceName = resourceReader.GetString(2);
 
                 switch (resourceType)
                 {
@@ -132,7 +134,8 @@ public class AWSAccountService
                         s3Bucket = resourceId;
                         break;
                     case "route53":
-                        route53Id = resourceId;
+                        route53ZoneId = resourceId;
+                        route53ZoneName = resourceName;
                         break;
                 }
             }
@@ -151,7 +154,8 @@ public class AWSAccountService
                 createdAt = (string)originalAccount.createdAt,
                 cloudFrontDistributionId = cloudFrontId,
                 s3BucketName = s3Bucket,
-                route53HealthCheckId = route53Id
+                route53HostedZoneId = route53ZoneId,
+                route53HostedZoneName = route53ZoneName
             };
         }
 

@@ -11,5 +11,5 @@ public interface ICloudWatchService
     Task<APIGatewayMetrics> GetAPIGatewayMetricsAsync(string apiId, string stage);
     Task<CloudFrontMetrics> GetCloudFrontMetricsAsync(string distributionId, BasicAWSCredentials credentials);
     Task<S3Metrics> GetS3MetricsAsync(string bucketName);
-    Task<Route53Metrics> GetRoute53MetricsAsync(string healthCheckId, BasicAWSCredentials credentials);
+    Task<Route53Metrics> GetRoute53MetricsAsync(string hostedZoneId, string hostedZoneName, BasicAWSCredentials credentials);
 }

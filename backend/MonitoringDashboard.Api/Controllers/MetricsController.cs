@@ -72,8 +72,8 @@ public class MetricsController : ControllerBase
                 ? await cloudWatchService.GetS3MetricsAsync(request.S3BucketName)
                 : null;
 
-            var route53Metrics = !string.IsNullOrEmpty(request.Route53HealthCheckId)
-                ? await cloudWatchService.GetRoute53MetricsAsync(request.Route53HealthCheckId, credentials)
+            var route53Metrics = !string.IsNullOrEmpty(request.Route53HostedZoneId)
+                ? await cloudWatchService.GetRoute53MetricsAsync(request.Route53HostedZoneId, request.Route53HostedZoneName ?? "", credentials)
                 : null;
 
             var response = new
@@ -135,5 +135,6 @@ public class MetricsRequest
     public string? ApiGatewayStage { get; set; }
     public string? CloudFrontDistributionId { get; set; }
     public string? S3BucketName { get; set; }
-    public string? Route53HealthCheckId { get; set; }
+    public string? Route53HostedZoneId { get; set; }
+    public string? Route53HostedZoneName { get; set; }
 }

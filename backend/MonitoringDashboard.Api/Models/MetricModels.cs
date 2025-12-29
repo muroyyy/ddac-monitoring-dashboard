@@ -94,8 +94,8 @@ public class S3Metrics
 
 public class Route53Metrics
 {
-    public string HealthCheckId { get; set; } = string.Empty;
-    public double HealthCheckStatus { get; set; }
-    public double HealthCheckPercentageHealthy { get; set; }
-    public List<MetricDataPoint> HealthStatusHistory { get; set; } = new();
+    public string HostedZoneId { get; set; } = string.Empty;
+    public string HostedZoneName { get; set; } = string.Empty;
+    public long DNSQueries { get; set; }
+    public List<MetricDataPoint> DNSQueriesHistory { get; set; } = new();
 }
